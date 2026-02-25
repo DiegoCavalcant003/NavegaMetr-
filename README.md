@@ -1,17 +1,15 @@
-# meu_primeiro_app
+# NavegaMetrô
 
-A new Flutter project.
+Documentação do projeto **NavegaMetrô**.
 
-## Getting Started
+Aplicativo desenvolvido em Flutter com foco em auxiliar a locomoção e navegação
+em sistemas de metrô, especialmente para usuários com deficiência visual.
 
-This project is a starting point for a Flutter application.
+## Tecnologias
+- Flutter
+- Dart
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Como executar o projeto
+```bash
+flutter pub get
+flutter run
