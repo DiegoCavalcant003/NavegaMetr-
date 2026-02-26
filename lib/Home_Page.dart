@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'NewRoute_Page.dart' show NewRoutePage;
+import 'SelectLineStart_page.dart';
 import 'history_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -25,34 +25,43 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const NewRoutePage()),
+                  MaterialPageRoute(
+                    builder: (_) => const SelectLineStart_page(),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 60),
                 textStyle: const TextStyle(fontSize: 20),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text('Iniciar rota nova'),
             ),
+
             const SizedBox(height: 24),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const HistoryPage()),
+                  MaterialPageRoute(
+                    builder: (_) => const HistoryPage(),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 60),
                 textStyle: const TextStyle(fontSize: 20),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text('Histórico'),
             ),
