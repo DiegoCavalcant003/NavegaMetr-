@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Travel_Page.dart';
 import 'SelectLineStart_page.dart';
+import 'route_model.dart';
 
 class NewRoutePage extends StatefulWidget {
   final String linhaOrigem;
@@ -21,6 +24,22 @@ class NewRoutePage extends StatefulWidget {
 }
 
 class _NewRoutePageState extends State<NewRoutePage> {
+
+  Future<void> salvarNoHistorico() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    List<String> lista = prefs.getStringList("historicoRotas") ?? [];
+
+    final novaRota = RouteModel(
+      origem: widget.estacaoOrigem,
+      destino: widget.estacaoDestino,
+      dataHora: DateTime.now().toString(),
+    );
+
+    lista.add(jsonEncode(novaRota.toJson()));
+
+    await prefs.setStringList("historicoRotas", lista);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,60 +68,67 @@ class _NewRoutePageState extends State<NewRoutePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
-            Text(
+            const Text(
               "Linha de Origem:",
               style: TextStyle(fontSize: 18),
             ),
             Text(
               widget.linhaOrigem,
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            Text(
+            const Text(
               "Estação de Origem:",
               style: TextStyle(fontSize: 18),
             ),
             Text(
               widget.estacaoOrigem,
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const SizedBox(height: 30),
 
-            Text(
+            const Text(
               "Linha de Destino:",
               style: TextStyle(fontSize: 18),
             ),
             Text(
               widget.linhaDestino,
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            Text(
+            const Text(
               "Estação de Destino:",
               style: TextStyle(fontSize: 18),
             ),
             Text(
               widget.estacaoDestino,
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const SizedBox(height: 40),
 
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+
+                await salvarNoHistorico();
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -120,7 +146,7 @@ class _NewRoutePageState extends State<NewRoutePage> {
                 "Iniciar Viagem",
                 style: TextStyle(fontSize: 20),
               ),
-            )
+            ),
           ],
         ),
       ),
