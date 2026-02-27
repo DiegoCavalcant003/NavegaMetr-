@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/services.dart'; // <- necessário para FilteringTextInputFormatter
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class CadastroPage extends StatefulWidget {
   const CadastroPage({super.key});
@@ -8,6 +11,9 @@ class CadastroPage extends StatefulWidget {
 }
 
 class _CadastroPageState extends State<CadastroPage> {
+  final stt.SpeechToText speech = stt.SpeechToText();
+
+  // Controllers
   final _nomeController = TextEditingController();
   final _cpfController = TextEditingController();
   final _emailController = TextEditingController();
@@ -15,6 +21,49 @@ class _CadastroPageState extends State<CadastroPage> {
   final _confirmarSenhaController = TextEditingController();
   final _telefoneController = TextEditingController();
   final _contatoEmergenciaController = TextEditingController();
+
+  // FocusNodes
+  final _nomeFocus = FocusNode();
+  final _cpfFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _senhaFocus = FocusNode();
+  final _confirmarSenhaFocus = FocusNode();
+  final _telefoneFocus = FocusNode();
+  final _contatoEmergenciaFocus = FocusNode();
+
+  bool ouvindo = false;
+
+  // Retorna o controller do campo que está com foco
+  TextEditingController? get _controllerAtivo {
+    if (_nomeFocus.hasFocus) return _nomeController;
+    if (_cpfFocus.hasFocus) return _cpfController;
+    if (_emailFocus.hasFocus) return _emailController;
+    if (_senhaFocus.hasFocus) return _senhaController;
+    if (_confirmarSenhaFocus.hasFocus) return _confirmarSenhaController;
+    if (_telefoneFocus.hasFocus) return _telefoneController;
+    if (_contatoEmergenciaFocus.hasFocus) return _contatoEmergenciaController;
+    return null;
+  }
+
+  void _ouvir() async {
+    final controller = _controllerAtivo;
+    if (controller == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecione um campo para falar')),
+      );
+      return;
+    }
+
+    bool available = await speech.initialize();
+    if (available) {
+      setState(() => ouvindo = true);
+      speech.listen(onResult: (result) {
+        setState(() {
+          controller.text = result.recognizedWords;
+        });
+      });
+    }
+  }
 
   void _cadastrar() {
     if (_nomeController.text.isEmpty ||
@@ -37,69 +86,50 @@ class _CadastroPageState extends State<CadastroPage> {
       return;
     }
 
-    _mostrarPopupSucesso();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cadastro realizado com sucesso!')),
+    );
   }
 
-  void _mostrarPopupSucesso() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text(
-            'Cadastro realizado!',
-            textAlign: TextAlign.center,
-          ),
-          content: const Text(
-            'Tudo certo 🎉\nSeu cadastro foi concluído com sucesso.',
-            textAlign: TextAlign.center,
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, '/home');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Iniciar aplicativo',
-                  style: TextStyle(fontSize: 16,
-                  color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void dispose() {
+    // Descartar focusNodes e controllers
+    _nomeFocus.dispose();
+    _cpfFocus.dispose();
+    _emailFocus.dispose();
+    _senhaFocus.dispose();
+    _confirmarSenhaFocus.dispose();
+    _telefoneFocus.dispose();
+    _contatoEmergenciaFocus.dispose();
+
+    _nomeController.dispose();
+    _cpfController.dispose();
+    _emailController.dispose();
+    _senhaController.dispose();
+    _confirmarSenhaController.dispose();
+    _telefoneController.dispose();
+    _contatoEmergenciaController.dispose();
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('Cadastro'),
+        backgroundColor: Colors.white,
+        elevation: 1,
         centerTitle: true,
-        leading: IconButton(
-          icon: Image.network(
-            'https://img.icons8.com/?size=100&id=99857&format=png&color=000000',
-            width: 28,
-            height: 28,
+        title: const Text(
+          'Cadastro',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
-          onPressed: () => Navigator.pop(context),
         ),
+        leading: const BackButton(color: Colors.black),
       ),
       body: Column(
         children: [
@@ -108,25 +138,48 @@ class _CadastroPageState extends State<CadastroPage> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  _campo(_nomeController, 'Nome completo'),
-                  _campo(_cpfController, 'CPF',
-                      tipo: TextInputType.number),
-                  _campo(_emailController, 'Email'),
-                  _campo(_senhaController, 'Senha', senha: true),
-                  _campo(_confirmarSenhaController, 'Confirmar senha',
-                      senha: true),
-                  _campo(_telefoneController, 'Telefone',
-                      tipo: TextInputType.phone),
-                  _campo(_contatoEmergenciaController,
-                      'Contato de Emergência',
-                      tipo: TextInputType.phone),
-                  const SizedBox(height: 100),
+                  _campo(_nomeController, 'Nome completo', focusNode: _nomeFocus),
+                  _campo(_cpfController, 'CPF', tipo: TextInputType.number, focusNode: _cpfFocus, somenteNumeros: true),
+                  _campo(_emailController, 'Email', focusNode: _emailFocus),
+                  _campo(_senhaController, 'Senha', senha: true, focusNode: _senhaFocus),
+                  _campo(_confirmarSenhaController, 'Confirmar senha', senha: true, focusNode: _confirmarSenhaFocus),
+                  _campo(_telefoneController, 'Telefone', tipo: TextInputType.number, focusNode: _telefoneFocus, somenteNumeros: true),
+                  _campo(_contatoEmergenciaController, 'Contato de Emergência', tipo: TextInputType.number, focusNode: _contatoEmergenciaFocus, somenteNumeros: true),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
 
+          // Botão de áudio que preenche o campo selecionado
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+            child: SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton.icon(
+                onPressed: _ouvir,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  elevation: 4,
+                ),
+                icon: const FaIcon(
+                  FontAwesomeIcons.microphone,
+                  color: Colors.white,
+                ),
+                label: const Text(
+                  'Usar Microfone',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
 
+          // Botão Cadastrar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             color: Colors.white,
@@ -137,14 +190,17 @@ class _CadastroPageState extends State<CadastroPage> {
                 onPressed: _cadastrar,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(18),
                   ),
+                  elevation: 4,
                 ),
                 child: const Text(
                   'Cadastrar',
                   style: TextStyle(
                     fontSize: 18,
+                    fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
                 ),
@@ -161,17 +217,27 @@ class _CadastroPageState extends State<CadastroPage> {
       String label, {
         bool senha = false,
         TextInputType tipo = TextInputType.text,
+        required FocusNode focusNode,
+        bool somenteNumeros = false,
       }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextField(
         controller: controller,
+        focusNode: focusNode,
         obscureText: senha,
         keyboardType: tipo,
+        inputFormatters: somenteNumeros ? [FilteringTextInputFormatter.digitsOnly] : null,
+        style: const TextStyle(color: Colors.black),
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: const TextStyle(color: Colors.black),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Colors.black),
           ),
         ),
       ),

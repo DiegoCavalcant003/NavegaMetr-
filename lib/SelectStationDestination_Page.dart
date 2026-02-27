@@ -22,7 +22,6 @@ class SelectStationDestination_Page extends StatefulWidget {
 
 class _SelectStationDestination_PageState
     extends State<SelectStationDestination_Page> {
-
   final FlutterTts tts = FlutterTts();
   final stt.SpeechToText speech = stt.SpeechToText();
   final TextEditingController controller = TextEditingController();
@@ -31,7 +30,6 @@ class _SelectStationDestination_PageState
   String erro = "";
 
   final Map<String, List<String>> estacoes = {
-
     "Linha 1 - Azul": [
       "Tucuruvi",
       "Parada Inglesa",
@@ -57,7 +55,6 @@ class _SelectStationDestination_PageState
       "Conceição",
       "Jabaquara"
     ],
-
     "Linha 2 - Verde": [
       "Vila Madalena",
       "Santuário Nossa Senhora de Fátima-Sumaré",
@@ -74,7 +71,6 @@ class _SelectStationDestination_PageState
       "Tamanduateí",
       "Vila Prudente"
     ],
-
     "Linha 3 - Vermelha": [
       "Palmeiras-Barra Funda",
       "Marechal Deodoro",
@@ -94,6 +90,16 @@ class _SelectStationDestination_PageState
       "Patriarca-Vila Ré",
       "Artur Alvim",
       "Corinthians-Itaquera"
+    ],
+    "Linha 4 - Amarela": [
+      "Luz",
+      "Faria Lima",
+      "Paulista",
+      "Higienópolis-Mackenzie",
+      "Consolação",
+      "Paulista",
+      "Ana Rosa",
+      "Vila Prudente"
     ],
   };
 
@@ -119,10 +125,7 @@ class _SelectStationDestination_PageState
     String texto = controller.text.trim().toLowerCase();
     List<String> lista = estacoes[widget.linhaDestino] ?? [];
 
-    bool existe =
-    lista.any((e) => e.toLowerCase() == texto);
-
-    if (!existe) {
+    if (!lista.any((e) => e.toLowerCase() == texto)) {
       setState(() {
         erro = "Estação inválida na linha selecionada.";
       });
@@ -154,51 +157,84 @@ class _SelectStationDestination_PageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Estação Destino")),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        centerTitle: true,
+        title: const Text(
+          "Estação Destino",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Image.network(
+            'https://img.icons8.com/?size=100&id=99857&format=png&color=000000',
+            width: 28,
+            height: 28,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
-              Text(widget.linhaDestino,
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold)),
-
+              Text(
+                widget.linhaDestino,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
               const SizedBox(height: 30),
 
               TextField(
                 controller: controller,
                 textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Colors.black26),
+                  ),
                   hintText: "Digite ou fale a estação",
                 ),
               ),
-
               const SizedBox(height: 20),
 
               if (erro.isNotEmpty)
-                Text(erro,
-                    style: const TextStyle(color: Colors.red)),
-
+                Text(
+                  erro,
+                  style: const TextStyle(color: Colors.red),
+                ),
               const SizedBox(height: 25),
 
               FloatingActionButton(
+                backgroundColor: Colors.black,
                 onPressed: ouvir,
-                child: const Icon(Icons.mic),
+                child: const Icon(Icons.mic, color: Colors.white),
               ),
-
               const SizedBox(height: 35),
 
               ElevatedButton(
                 onPressed: validar,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 65),
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                    side: const BorderSide(color: Colors.black26, width: 1.5),
+                  ),
+                  elevation: 4,
                 ),
-                child: const Text("Confirmar Destino"),
+                child: const Text(
+                  "Confirmar Destino",
+                  style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               )
             ],
           ),

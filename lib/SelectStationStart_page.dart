@@ -1,32 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'SelectLineDestination_Page.dart';
 
 class SelectStationStart_page extends StatefulWidget {
   final String linha;
 
-  const SelectStationStart_page(
-      {super.key, required this.linha});
+  const SelectStationStart_page({super.key, required this.linha});
 
   @override
   State<SelectStationStart_page> createState() =>
       _SelectStationStart_pageState();
 }
 
-class _SelectStationStart_pageState
-    extends State<SelectStationStart_page> {
-
+class _SelectStationStart_pageState extends State<SelectStationStart_page> {
   final FlutterTts tts = FlutterTts();
   final stt.SpeechToText speech = stt.SpeechToText();
-  final TextEditingController controller =
-  TextEditingController();
+  final TextEditingController controller = TextEditingController();
 
   bool ouvindo = false;
   String erro = "";
 
   final Map<String, List<String>> estacoes = {
-
     "Linha 1 - Azul": [
       "Tucuruvi",
       "Parada Inglesa",
@@ -52,7 +48,6 @@ class _SelectStationStart_pageState
       "Conceição",
       "Jabaquara"
     ],
-
     "Linha 2 - Verde": [
       "Vila Madalena",
       "Santuário Nossa Senhora de Fátima-Sumaré",
@@ -69,7 +64,6 @@ class _SelectStationStart_pageState
       "Tamanduateí",
       "Vila Prudente"
     ],
-
     "Linha 3 - Vermelha": [
       "Palmeiras-Barra Funda",
       "Marechal Deodoro",
@@ -112,28 +106,23 @@ class _SelectStationStart_pageState
 
   void validar() {
     String texto = controller.text.trim().toLowerCase();
-    List<String> lista =
-        estacoes[widget.linha] ?? [];
+    List<String> lista = estacoes[widget.linha] ?? [];
 
-    bool existe =
-    lista.any((e) => e.toLowerCase() == texto);
+    bool existe = lista.any((e) => e.toLowerCase() == texto);
 
     if (existe) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              SelectLineDestination_Page(
-                linhaOrigem: widget.linha,
-                estacaoOrigem:
-                controller.text.trim(),
-              ),
+          builder: (_) => SelectLineDestination_Page(
+            linhaOrigem: widget.linha,
+            estacaoOrigem: controller.text.trim(),
+          ),
         ),
       );
     } else {
       setState(() {
-        erro =
-        "Estação inválida na linha selecionada.";
+        erro = "Estação inválida na linha selecionada.";
       });
       tts.speak("Estação inválida");
     }
@@ -142,45 +131,75 @@ class _SelectStationStart_pageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-      AppBar(title: const Text("Estação Partida")),
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        centerTitle: true,
+        title: const Text(
+          "Estação Partida",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: const BackButton(color: Colors.black),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
-            mainAxisAlignment:
-            MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
-              Text(widget.linha,
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold)),
-
+              Text(
+                widget.linha,
+                style: const TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
               const SizedBox(height: 30),
-
               TextField(
                 controller: controller,
                 textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText:
-                  "Digite ou fale a estação",
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  hintText: "Digite ou fale a estação",
+                  hintStyle: const TextStyle(color: Colors.black54),
                 ),
+                style: const TextStyle(color: Colors.black),
               ),
-
               const SizedBox(height: 20),
-
               if (erro.isNotEmpty)
-                Text(erro,
-                    style: const TextStyle(
-                        color: Colors.red)),
-
+                Text(
+                  erro,
+                  style: const TextStyle(color: Colors.red),
+                ),
               const SizedBox(height: 25),
 
-              FloatingActionButton(
-                onPressed: ouvir,
-                child: const Icon(Icons.mic),
+              // Botão de áudio estilo padronizado
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton.icon(
+                  onPressed: ouvir,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    elevation: 4,
+                  ),
+                  icon: const FaIcon(
+                    FontAwesomeIcons.microphone,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    'Falar estação',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
               ),
 
               const SizedBox(height: 35),
@@ -188,11 +207,21 @@ class _SelectStationStart_pageState
               ElevatedButton(
                 onPressed: validar,
                 style: ElevatedButton.styleFrom(
-                  minimumSize:
-                  const Size(double.infinity, 65),
+                  minimumSize: const Size(double.infinity, 65),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  elevation: 4,
                 ),
-                child:
-                const Text("Confirmar"),
+                child: const Text(
+                  "Confirmar",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               )
             ],
           ),
